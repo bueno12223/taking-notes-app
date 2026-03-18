@@ -10,7 +10,7 @@ def get_notes_by_user(cognito_user_id: str) -> QuerySet[Note]:
     return Note.objects.filter(cognito_user_id=cognito_user_id).order_by("-updated_at")
 
 
-def create_note(cognito_user_id: str, title: str, content: str, category: str | None) -> Note:
+def create_note(cognito_user_id: str, title: str, content: str, category: str) -> Note:
     """
     Creates a new note for the given user.
     """

@@ -11,8 +11,8 @@ class NoteListViewTests(APITestCase):
         self.url = reverse("note-list")
         self.user1 = "user-123"
         self.user2 = "user-456"
-        Note.objects.create(cognito_user_id=self.user1, title="User 1 Note", content="Content 1")
-        Note.objects.create(cognito_user_id=self.user2, title="User 2 Note", content="Content 2")
+        Note.objects.create(cognito_user_id=self.user1, title="User 1 Note", content="Content 1", category="brand-peach")
+        Note.objects.create(cognito_user_id=self.user2, title="User 2 Note", content="Content 2", category="brand-peach")
 
     def test_unauthenticated_request_returns_401(self):
         # By default no token - should return 403 (Forbidden) without challenge
