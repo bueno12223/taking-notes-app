@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 import NoteToolbar from "./NoteToolbar";
 import NoteEditor from "./NoteEditor";
 import { Note } from "@/types/note";
 import { Category } from "@/types/category";
+import { useCustomForm } from "@/hooks/use-custom-form";
+import { getNoteInitialValues, noteSchema, NoteFormValues } from "./validations";
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -15,7 +17,37 @@ interface NoteModalProps {
 }
 
 export default function NoteModal({ isOpen, onClose, note, categories }: NoteModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const form = useCustomForm<NoteFormValues>({
+    initialValues: getNoteInitialValues(),
+    validationSchema: noteSchema,
+    onSubmit: (values) => {
+      console.log("Note submitted:", values);
+    },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      const defaultCategory = note?.category ?? categories[0]?.value ?? "";
+      form.resetForm({
+        values: {
+          title: note?.title ?? "",
+          content: note?.content ?? {},
+          category: defaultCategory,
+        },
+      });
+    }
+  }, [isOpen, note, categories]);
+
+  const selectedCategory = categories.find((c) => c.value === form.values.category) ?? null;
+
+  const handleCategorySelect = (category: Category) => {
+    form.setFieldValue("category", category.value);
+  };
+
+  const handleClose = () => {
+    form.resetForm();
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -30,10 +62,15 @@ export default function NoteModal({ isOpen, onClose, note, categories }: NoteMod
           <NoteToolbar
             selected={selectedCategory}
             categories={categories}
-            onSelectCategory={setSelectedCategory}
-            onClose={onClose}
+            onSelectCategory={handleCategorySelect}
+            onClose={handleClose}
           />
-          <NoteEditor />
+          <NoteEditor
+            title={form.values.title}
+            content={form.values.content}
+            onTitleChange={(val) => form.setFieldValue("title", val)}
+            onContentChange={(val) => form.setFieldValue("content", val)}
+          />
         </motion.div>
       )}
     </AnimatePresence>

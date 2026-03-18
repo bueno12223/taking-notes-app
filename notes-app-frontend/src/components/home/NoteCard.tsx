@@ -5,6 +5,18 @@ interface NoteCardProps {
   note: Note;
 }
 
+interface TiptapNode {
+  type?: string;
+  text?: string;
+  content?: TiptapNode[];
+}
+
+function extractPlainText(node: TiptapNode): string {
+  if (node.text) return node.text;
+  if (!node.content) return "";
+  return node.content.map(extractPlainText).join("");
+}
+
 export default function NoteCard({ note }: NoteCardProps) {
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -12,10 +24,8 @@ export default function NoteCard({ note }: NoteCardProps) {
     year: "numeric",
   }).format(new Date(note.updated_at));
 
-  const truncatedContent =
-    note.content.length > 150
-      ? note.content.substring(0, 150) + "..."
-      : note.content;
+  const plainText = extractPlainText(note.content as TiptapNode);
+  const truncatedContent = plainText.length > 150 ? plainText.substring(0, 150) + "..." : plainText;
 
   return (
     <article className="bg-[#FAF1E3] border border-[#957139]/20 rounded-[12px] p-6 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
