@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
-import EmptyState from "@/components/home/EmptyState";
-import NotesSkeleton from "@/components/home/NotesSkeleton";
-import NotesGrid from "@/components/home/NotesGrid";
+import NotesContent from "./components/NotesContent";
+import NoteModal from "@/components/note/NoteModal";
 import { useApi } from "@/hooks/useApi";
 import { Note } from "@/types/note";
 
@@ -15,24 +15,32 @@ const MOCK_CATEGORIES = [
 
 export default function HomePage() {
   const { data: notes, isLoading } = useApi<Note[]>("/api/notes/");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
-  const renderContent = () => {
-    if (isLoading) {
-      return <NotesSkeleton />;
-    }
+  const handleNewNote = () => {
+    setSelectedNote(null);
+    setIsModalOpen(true);
+  };
 
-    if (!notes || notes.length === 0) {
-      return <EmptyState />;
-    }
-
-    return <NotesGrid notes={notes} />;
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedNote(null);
   };
 
   return (
-    <AppLayout categories={MOCK_CATEGORIES}>
-      <div className="flex-1 flex flex-col overflow-auto h-full">
-        {renderContent()}
-      </div>
-    </AppLayout>
+    <>
+      <AppLayout categories={MOCK_CATEGORIES} onNewNote={handleNewNote}>
+        <div className="flex-1 flex flex-col overflow-auto h-full">
+          <NotesContent notes={notes} isLoading={isLoading} />
+        </div>
+      </AppLayout>
+
+      <NoteModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        note={selectedNote}
+      />
+    </>
   );
 }
