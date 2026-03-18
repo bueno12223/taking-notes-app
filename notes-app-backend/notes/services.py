@@ -8,3 +8,15 @@ def get_notes_by_user(cognito_user_id: str) -> QuerySet[Note]:
     Results are ordered by updated_at descending.
     """
     return Note.objects.filter(cognito_user_id=cognito_user_id).order_by("-updated_at")
+
+
+def create_note(cognito_user_id: str, title: str, content: str, category: str | None) -> Note:
+    """
+    Creates a new note for the given user.
+    """
+    return Note.objects.create(
+        cognito_user_id=cognito_user_id,
+        title=title,
+        content=content,
+        category=category,
+    )

@@ -38,3 +38,45 @@ class NoteListViewTests(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
+
+
+class NoteCreateViewTests(APITestCase):
+    def setUp(self):
+        self.url = reverse("note-list")
+        self.user_id = "user-789"
+
+    def test_unauthenticated_request_returns_403(self):
+        response = self.client.post(self.url, {"title": "T", "content": "C"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch("notes.authentication.CognitoAuthentication.authenticate")
+    def test_valid_request_returns_201_with_created_note(self, mock_auth):
+        mock_auth.return_value = (CognitoUser(self.user_id), None)
+        payload = {
+            "title": "My note",
+            "content": "...",
+            "category": "brand-peach"
+        }
+        
+        response = self.client.post(self.url, payload, HTTP_AUTHORIZATION="Bearer dummy-token", format="json")
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["title"], "My note")
+        self.assertEqual(response.data["content"], "...")
+        self.assertEqual(response.data["category"], "brand-peach")
+        self.assertEqual(response.data["cognito_user_id"], self.user_id)
+        self.assertEqual(Note.objects.filter(cognito_user_id=self.user_id).count(), 1)
+
+    @patch("notes.authentication.CognitoAuthentication.authenticate")
+    def test_invalid_category_returns_400(self, mock_auth):
+        mock_auth.return_value = (CognitoUser(self.user_id), None)
+        payload = {
+            "title": "My note",
+            "content": "...",
+            "category": "invalid-category"
+        }
+        
+        response = self.client.post(self.url, payload, HTTP_AUTHORIZATION="Bearer dummy-token", format="json")
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("category", response.data)

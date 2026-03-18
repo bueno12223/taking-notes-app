@@ -1,6 +1,6 @@
 from django.test import TestCase
 from notes.models import Note
-from notes.services import get_notes_by_user
+from notes.services import get_notes_by_user, create_note
 
 class NoteServicesTest(TestCase):
     def setUp(self):
@@ -32,3 +32,23 @@ class NoteServicesTest(TestCase):
         # note1 should now be first if ordered by updated_at desc
         notes = get_notes_by_user(self.user1)
         self.assertEqual(notes[0].title, "User 1 Note Updated")
+
+    def test_create_note_saves_to_db_with_correct_user(self):
+        note = create_note(
+            cognito_user_id="user-999",
+            title="New valid note",
+            content="Some content",
+            category="brand-peach"
+        )
+        self.assertEqual(note.cognito_user_id, "user-999")
+        self.assertEqual(Note.objects.filter(cognito_user_id="user-999").count(), 1)
+        
+    def test_create_note_handles_null_category(self):
+        note = create_note(
+            cognito_user_id="user-888",
+            title="Null category note",
+            content="More content",
+            category=None
+        )
+        self.assertIsNone(note.category)
+        self.assertEqual(Note.objects.filter(cognito_user_id="user-888").count(), 1)
