@@ -24,8 +24,29 @@ def _fetch_jwks() -> dict[str, list[dict[str, str]]]:
     return _jwks_cache
 
 
+class MockAnonymousUser:
+    @property
+    def is_authenticated(self) -> bool:
+        return False
+
+    def __str__(self) -> str:
+        return "AnonymousUser"
+
+
+class CognitoUser:
+    def __init__(self, sub: str):
+        self.sub = sub
+
+    @property
+    def is_authenticated(self) -> bool:
+        return True
+
+    def __str__(self) -> str:
+        return self.sub
+
+
 class CognitoAuthentication(BaseAuthentication):
-    def authenticate(self, request: Request) -> Optional[tuple[str, None]]:
+    def authenticate(self, request: Request) -> Optional[tuple[CognitoUser, None]]:
         auth_header: str = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
             return None
@@ -49,4 +70,4 @@ class CognitoAuthentication(BaseAuthentication):
         if payload.get("client_id") != settings.COGNITO_APP_CLIENT_ID:
             raise AuthenticationFailed("Token client_id does not match.")
 
-        return (payload["sub"], None)
+        return (CognitoUser(payload["sub"]), None)

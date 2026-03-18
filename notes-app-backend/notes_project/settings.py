@@ -12,10 +12,14 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost 127.0.0.1 0.0.0.0").s
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "rest_framework",
+    "corsheaders",
     "notes",
 ]
 
-MIDDLEWARE: list = []
+MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+]
 
 ROOT_URLCONF = "notes_project.urls"
 
@@ -43,4 +47,9 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "UNAUTHENTICATED_USER": "notes.authentication.MockAnonymousUser",
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]

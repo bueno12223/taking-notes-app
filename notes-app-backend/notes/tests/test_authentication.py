@@ -6,7 +6,7 @@ from jose import JWTError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APIRequestFactory
 
-from notes.authentication import CognitoAuthentication
+from notes.authentication import CognitoAuthentication, CognitoUser
 
 COGNITO_SETTINGS = {
     "COGNITO_APP_CLIENT_ID": "test-client-id",
@@ -34,7 +34,10 @@ class CognitoAuthenticationTest(TestCase):
     @patch("notes.authentication.jwt.decode", return_value=VALID_PAYLOAD)
     def test_valid_token_returns_sub(self, _mock_decode, _mock_jwks) -> None:
         result = self.auth.authenticate(self._make_request("valid.token.here"))
-        self.assertEqual(result, ("user-123", None))
+        self.assertIsNotNone(result)
+        user, token = result
+        self.assertEqual(user.sub, "user-123")
+        self.assertIsNone(token)
 
     def test_missing_header_returns_none(self) -> None:
         result = self.auth.authenticate(self._make_request())

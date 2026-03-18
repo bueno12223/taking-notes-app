@@ -1,3 +1,5 @@
-from django.urls import path
+from django.urls import path, include
 
-urlpatterns: list = []
+urlpatterns = [
+    path("api/", include("notes.urls")),
+]
