@@ -1,4 +1,5 @@
 import CategoryItem from "./CategoryItem";
+import SidebarUserFooter from "./SidebarUserFooter";
 
 interface Category {
   name: string;
@@ -12,7 +13,7 @@ interface SidebarProps {
 
 export default function Sidebar({ categories, onSelectCategory }: SidebarProps) {
   return (
-    <aside className="flex flex-col w-[288px] shrink-0 h-[781px] mt-[35px] ml-[23px] hidden md:flex">
+    <aside className="flex flex-col w-[288px] shrink-0 h-[781px] mt-[35px] ml-[23px] hidden md:flex justify-between">
       <div className="flex flex-col gap-0">
         <div className="flex items-center px-4 py-2">
           <span className="font-sans font-bold text-[12px] text-black">All Categories</span>
@@ -26,6 +27,7 @@ export default function Sidebar({ categories, onSelectCategory }: SidebarProps) 
           />
         ))}
       </div>
+      <SidebarUserFooter />
     </aside>
   );
 }
