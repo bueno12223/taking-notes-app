@@ -10,7 +10,7 @@ class Note(models.Model):
 
     cognito_user_id = models.CharField(max_length=128)
     title = models.CharField(max_length=255)
-    content = models.TextField()
+    content = models.JSONField(default=dict)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
