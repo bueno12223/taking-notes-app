@@ -31,7 +31,7 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
   return (
     <EditorContent
       editor={editor}
-      className="flex flex-1 overflow-auto [&>.tiptap]:flex-1 [&>.tiptap]:h-full [&>.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&>.tiptap_p.is-editor-empty:first-child::before]:text-black/40 [&>.tiptap_p.is-editor-empty:first-child::before]:float-left [&>.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&>.tiptap_p.is-editor-empty:first-child::before]:h-0"
+      className="flex flex-1 overflow-auto [&>.tiptap]:flex-1 [&>.tiptap]:h-full [&>.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&>.tiptap_p.is-editor-empty:first-child::before]:text-black/40 [&>.tiptap_p.is-editor-empty:first-child::before]:float-left [&>.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&>.tiptap_p.is-editor-empty:first-child::before]:h-0 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:leading-[27px] [&_li]:my-0 [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-[28px] [&_h2]:font-serif [&_h2]:font-bold [&_h2]:text-[22px] [&_h3]:font-serif [&_h3]:font-bold [&_h3]:text-[18px]"
     />
   );
 }
