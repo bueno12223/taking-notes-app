@@ -9,17 +9,22 @@ import { getInitialValues, loginSchema, AuthFormValues } from "@/components/form
 import { useAuth } from "@/context/AuthContext";
 import { getFriendlyErrorMessage } from "@/lib/error-mapping";
 import cactusImage from "@/assets/cactus.webp";
+import { useState } from "react";
 
 export default function LoginPage() {
   const { signIn } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (values: AuthFormValues) => {
     try {
+      setLoading(true);
       await signIn(values.email, values.password);
       router.push("/home");
     } catch (err) {
       toast.error(getFriendlyErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,6 +41,7 @@ export default function LoginPage() {
         footerLabel="Oops! I've never been here before"
         footerHref="/signup"
         onSubmit={handleSubmit}
+        loading={loading}
       />
     </AuthLayout>
   );

@@ -21,6 +21,8 @@ interface ButtonProps {
   disabled?: boolean;
   /** The HTML type attribute for the button. */
   type?: "button" | "submit";
+  /** If true, the button will show a loading spinner. */
+  loading?: boolean;
 }
 
 /**
@@ -34,13 +36,14 @@ export default function Button({
   iconPosition = "left",
   variant = "default",
   disabled = false,
+  loading = false,
   type = "button",
 }: ButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
       className={cn(
         "inline-flex items-center justify-center gap-[6px] rounded-[46px] px-4 py-3 font-sans font-bold text-[16px] transition-colors whitespace-nowrap",
         "disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
@@ -49,9 +52,17 @@ export default function Button({
         variant === "default" ? "border border-brand-gold" : "border-none"
       )}
     >
-      {icon && iconPosition === "left" && <span>{icon}</span>}
-      {label}
-      {icon && iconPosition === "right" && <span>{icon}</span>}
+      {loading ? (
+        <div className="flex items-center gap-[6px]">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-gold" />
+        </div>
+      ) : (
+        <>
+          {icon && iconPosition === "left" && <span>{icon}</span>}
+          {label}
+          {icon && iconPosition === "right" && <span>{icon}</span>}
+        </>
+      )}
     </button>
   );
 }

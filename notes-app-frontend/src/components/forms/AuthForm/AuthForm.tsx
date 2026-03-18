@@ -13,6 +13,7 @@ interface AuthFormProps {
   buttonLabel: string;
   footerLabel: string;
   footerHref: string;
+  loading: boolean;
   onSubmit: (values: AuthFormValues) => void;
 }
 
@@ -22,6 +23,7 @@ export default function AuthForm({
   buttonLabel,
   footerLabel,
   footerHref,
+  loading,
   onSubmit,
 }: AuthFormProps) {
   const form = useCustomForm<AuthFormValues>({
@@ -51,7 +53,7 @@ export default function AuthForm({
         error={form.touched.password ? (form.errors.password as string) : undefined}
       />
       <div className="flex flex-col items-center gap-[12px] mt-6">
-        <Button label={buttonLabel} type="submit" fullWidth />
+        <Button label={buttonLabel} type="submit" fullWidth loading={loading} />
         <Link
           href={footerHref}
           className="text-[12px] font-normal font-sans underline text-brand-gold"

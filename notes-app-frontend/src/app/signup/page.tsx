@@ -9,18 +9,23 @@ import { getInitialValues, signUpSchema, AuthFormValues } from "@/components/for
 import { useAuth } from "@/context/AuthContext";
 import { getFriendlyErrorMessage } from "@/lib/error-mapping";
 import catImage from "@/assets/cat.webp";
+import { useState } from "react";
 
 export default function SignUpPage() {
   const { signUp } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (values: AuthFormValues) => {
     try {
+      setLoading(true);
       await signUp(values.email, values.password);
       toast.success("Account created! Please login");
       router.push("/login");
     } catch (err) {
       toast.error(getFriendlyErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,6 +42,7 @@ export default function SignUpPage() {
         footerLabel="We're already friends!"
         footerHref="/login"
         onSubmit={handleSubmit}
+        loading={loading}
       />
     </AuthLayout>
   );
