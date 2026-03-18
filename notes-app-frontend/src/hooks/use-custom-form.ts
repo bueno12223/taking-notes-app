@@ -1,4 +1,6 @@
-import { useFormik, FormikConfig, FormikValues, FormikHelpers } from "formik";
+"use client";
+
+import { useFormik, FormikValues, FormikHelpers } from "formik";
 import { Schema } from "yup";
 
 /**
@@ -16,6 +18,8 @@ interface UseCustomFormProps<T extends FormikValues> {
      * @param helpers - Formik helpers to manage form state (e.g., resetForm).
      */
     onSubmit: (values: T, helpers: FormikHelpers<T>) => Promise<void> | void;
+    /** Whether Formik should re-initialize its state when initialValues change. */
+    enableReinitialize?: boolean;
 }
 
 /**
@@ -29,18 +33,21 @@ interface UseCustomFormProps<T extends FormikValues> {
  * const form = useCustomForm({
  *   initialValues: { name: '' },
  *   validationSchema: Yup.object({ name: Yup.string().required() }),
- *   onSubmit: (values) => console.log(values)
+ *   onSubmit: (values) => console.log(values),
+ *   enableReinitialize: true
  * });
  */
 export const useCustomForm = <T extends FormikValues>({
     initialValues,
     validationSchema,
     onSubmit,
+    enableReinitialize = false,
 }: UseCustomFormProps<T>) => {
     const formik = useFormik<T>({
         initialValues,
         validationSchema,
         onSubmit,
+        enableReinitialize,
     });
 
     return formik;

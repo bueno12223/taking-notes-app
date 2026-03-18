@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Note, TiptapNode } from "@/types/note";
+import { Note } from "@/types/note";
 import { useApi } from "./useApi";
 import { AUTOSAVE_DELAY } from "@/constants";
 import { isContentEmpty } from "@/lib/note-utils";
@@ -15,41 +15,54 @@ export interface AutosaveErrors {
   content: string | null;
 }
 
+/**
+ * Props configuration for the useAutosave hook.
+ */
 interface UseAutosaveProps {
   /** The unique identifier of the note. Null if creating a new note. */
   noteId: number | null;
-  /** The data to be autosaved. */
+  /** The data object containing title, content, and category for autosaving. */
   data: AutosaveFields;
-  /** Callback triggered when a save operation completes successfully. */
+  /** Callback function triggered upon a successful save or create. */
   onSaveSuccess: (note: Note) => void;
-  /** Optional initial ISO date of the last save. */
+  /** ISO timestamp representing when the data was last saved successfully. */
   initialLastSavedAt?: string | null;
-  /** Optional debounce delay in milliseconds. Defaults to global AUTOSAVE_DELAY. */
+  /** Debounce delay in milliseconds before triggering the save operation. */
   delay?: number;
+  /** Conditional flag to enable or disable the autosaving logic entirely. */
+  enabled?: boolean;
 }
 
+/**
+ * Result object returned by the useAutosave hook.
+ */
 interface UseAutosaveResult {
-  /** Current status of the save operation (idle, saving, or saved). */
+  /** The current status of the save operation: idle, saving, or saved. */
   saveStatus: SaveStatus;
-  /** Field-specific validation errors. */
+  /** An object mapping validation errors for individual fields. */
   errors: AutosaveErrors;
-  /** True if all fields are valid for saving. */
+  /** Boolean indicating whether the current data passes all validation rules. */
   isValid: boolean;
-  /** ISO timestamp of the last successful save. */
+  /** ISO timestamp of the last successful save operation. */
   lastSavedAt: string | null;
 }
 
 /**
- * A custom hook that handles automatic saving of note data with debouncing and validation.
+ * A custom hook that manages automatic saving of note data with debounce and validation support.
  * 
- * It manages both creation (POST) and updates (PATCH) depending on whether `noteId` is provided.
- * Saving only occurs if the data is valid and has changed since the last successful save.
+ * It identifies whether to perform a POST (create) or PATCH (update) based on the presence of a noteId.
+ * Validation is performed internally, and saving only proceeds if the data has changed from the 
+ * state that was successfully saved last.
+ * 
+ * @param {UseAutosaveProps} props - The hook configuration properties.
+ * @returns {UseAutosaveResult} An object containing the current save status and validation metadata.
  * 
  * @example
  * const { saveStatus, errors } = useAutosave({
- *   noteId: actualNoteId,
+ *   noteId,
  *   data: { title, content, category },
- *   onSaveSuccess: (note) => console.log("Saved!", note)
+ *   onSaveSuccess: (note) => console.log("Note saved:", note),
+ *   enabled: form.dirty
  * });
  */
 export function useAutosave({
@@ -58,6 +71,7 @@ export function useAutosave({
   onSaveSuccess,
   initialLastSavedAt = null,
   delay = AUTOSAVE_DELAY,
+  enabled = true,
 }: UseAutosaveProps): UseAutosaveResult {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(initialLastSavedAt);
@@ -74,10 +88,16 @@ export function useAutosave({
 
   const latestDataRef = useRef(data);
   const latestIsValidRef = useRef(false);
-  const lastSuccessfullySavedDataRef = useRef<string>("");
+  
+  const lastSuccessfullySavedDataRef = useRef<string>(noteId !== null ? JSON.stringify(data) : "");
 
   useEffect(() => {
     noteIdRef.current = noteId;
+    if (noteId !== null) {
+      lastSuccessfullySavedDataRef.current = JSON.stringify(data);
+    } else {
+      lastSuccessfullySavedDataRef.current = "";
+    }
   }, [noteId]);
 
   const { title, content, category } = data;
@@ -144,7 +164,7 @@ export function useAutosave({
   }, [save]);
 
   useEffect(() => {
-    if (!isValid) {
+    if (!enabled || !isValid) {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
@@ -164,17 +184,17 @@ export function useAutosave({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [title, category, content, isValid, delay]);
+  }, [title, category, content, isValid, delay, enabled]);
 
   useEffect(() => {
     return () => {
-      if (timerRef.current && latestIsValidRef.current && !isSavingRef.current) {
+      if (timerRef.current && latestIsValidRef.current && !isSavingRef.current && enabled) {
         clearTimeout(timerRef.current);
         saveRef.current(latestDataRef.current);
       }
       if (savedFadeTimerRef.current) clearTimeout(savedFadeTimerRef.current);
     };
-  }, []);
+  }, [enabled]);
 
   return { saveStatus, errors, isValid, lastSavedAt };
 }

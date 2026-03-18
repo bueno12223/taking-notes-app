@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Note } from "@/types/note";
@@ -22,11 +22,17 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
     editable: false,
     editorProps: {
       attributes: {
-        class: "font-sans text-[12px] leading-[15px] text-black pointer-events-none p-0",
+        class: "font-sans text-[12px] leading-[15px] text-black pointer-events-none p-0 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:my-0",
       },
     },
     immediatelyRender: false,
   });
+
+  useEffect(() => {
+    if (editor && note.content) {
+      editor.commands.setContent(note.content);
+    }
+  }, [editor, note.content]);
 
   return (
     <article

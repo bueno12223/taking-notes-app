@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -27,6 +28,14 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
     },
     immediatelyRender: false,
   });
+
+  useEffect(() => {
+    if (!editor || !content) return;
+    const currentJson = editor.getJSON();
+    if (JSON.stringify(currentJson) !== JSON.stringify(content)) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
 
   return (
     <EditorContent

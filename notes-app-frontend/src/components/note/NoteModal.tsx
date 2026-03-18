@@ -32,6 +32,7 @@ export default function NoteModal({
     initialValues: getInitialNoteValues(note, categories[0]?.value),
     validationSchema: noteValidationSchema,
     onSubmit: () => { },
+    enableReinitialize: true,
   });
 
   const onSaveSuccess = (savedNote: Note) => {
@@ -47,6 +48,7 @@ export default function NoteModal({
     noteId,
     data: form.values,
     onSaveSuccess,
+    enabled: form.dirty,
   });
 
   useEffect(() => {
