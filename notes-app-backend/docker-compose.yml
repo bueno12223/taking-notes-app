@@ -6,9 +6,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d notes_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.dev
     command: python manage.py runserver 0.0.0.0:8000
@@ -18,7 +23,8 @@ services:
       - "8000:8000"
     env_file: .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:
