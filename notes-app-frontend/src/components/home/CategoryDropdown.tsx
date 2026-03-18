@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Category } from "@/types/category";
+import { CATEGORY_DOT_COLORS } from "@/constants";
 import CategoryItem from "./CategoryItem";
 
 interface CategoryDropdownProps {
@@ -26,7 +27,7 @@ export default function CategoryDropdown({ selected, options, onSelect }: Catego
         className="flex flex-row items-center w-full px-[18px] py-[8px] gap-2 border border-brand-gold rounded-[6px] bg-brand-linen hover:bg-black/5 transition-colors"
       >
         <span
-          className={`shrink-0 rounded-full w-[11px] h-[11px] ${selected ? `bg-${selected.value}` : 'bg-transparent'}`}
+          className={`shrink-0 rounded-full w-[11px] h-[11px] ${selected ? (CATEGORY_DOT_COLORS[selected.value] || "bg-gray-400") : 'bg-transparent'}`}
         />
         <span className="font-sans text-[14px] text-black flex-1 text-left">
           {selected?.label || "Select Category"}
@@ -44,6 +45,7 @@ export default function CategoryDropdown({ selected, options, onSelect }: Catego
             <CategoryItem
               key={category.value}
               category={category}
+              showCount={false}
               onClick={() => handleSelect(category)}
             />
           ))}

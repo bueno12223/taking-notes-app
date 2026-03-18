@@ -5,15 +5,14 @@ import NoteEditor from "./NoteEditor";
 import NoteToolbar from "./NoteToolbar";
 import { useAutosave } from "@/hooks/useAutosave";
 import { Note } from "@/types/note";
-import { Category } from "@/types/category";
 import { useCustomForm } from "@/hooks/use-custom-form";
 import { getInitialNoteValues, noteValidationSchema, NoteFormValues } from "./validations";
+import { useCategories } from "@/context/CategoriesContext";
 
 interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   note: Note | null;
-  categories: Category[];
   onNoteSaved: (updatedNote: Note) => void;
 }
 
@@ -21,9 +20,9 @@ export default function NoteModal({
   isOpen,
   onClose,
   note,
-  categories,
   onNoteSaved
 }: NoteModalProps) {
+  const { categories } = useCategories();
   const [noteId, setNoteId] = useState<number | null>(note?.id ?? null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(note?.updated_at ?? null);
   const [pendingClose, setPendingClose] = useState(false);
@@ -77,7 +76,6 @@ export default function NoteModal({
         <div className="relative z-10 flex-1 flex flex-col animate-in zoom-in-95 slide-in-from-bottom-4 duration-500 overflow-hidden">
           <NoteToolbar
             selected={selectedCategory}
-            categories={categories}
             onSelectCategory={(cat) => form.setFieldValue("category", cat.value)}
             onClose={handleClose}
           />

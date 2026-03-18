@@ -7,12 +7,13 @@ import NoteModal from "@/components/note/NoteModal";
 import Button from "@/components/ui/Button";
 import { Plus } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
+import { useCategories } from "@/context/CategoriesContext";
 import { Note } from "@/types/note";
 import { Category } from "@/types/category";
 
 export default function HomePage() {
+  const { categories } = useCategories();
   const { data: initialNotes, isLoading: isNotesLoading } = useApi<Note[]>("/api/notes/");
-  const { data: categories = [] } = useApi<Category[]>("/api/categories/");
 
   const [localNotes, setLocalNotes] = useState<Note[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -67,7 +68,6 @@ export default function HomePage() {
   return (
     <>
       <AppLayout 
-        categories={categories ?? []} 
         onSelectCategory={handleSelectCategory}
         selectedCategoryId={selectedCategoryId}
         counts={categoryCounts}
@@ -96,7 +96,6 @@ export default function HomePage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         note={selectedNote}
-        categories={categories ?? []}
         onNoteSaved={handleNoteSaved}
       />
     </>

@@ -4,7 +4,6 @@ import Sidebar from "@/components/home/Sidebar";
 import { Category } from "@/types/category";
 
 interface AppLayoutProps {
-  categories: Category[];
   children: React.ReactNode;
   onSelectCategory?: (category: Category) => void;
   selectedCategoryId?: string | null;
@@ -12,7 +11,6 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ 
-  categories, 
   children, 
   onSelectCategory,
   selectedCategoryId,
@@ -21,7 +19,6 @@ export default function AppLayout({
   return (
     <div className="relative min-h-screen w-full bg-brand-linen flex flex-row">
       <Sidebar 
-        categories={categories} 
         onSelectCategory={onSelectCategory}
         selectedCategoryId={selectedCategoryId}
         counts={counts}

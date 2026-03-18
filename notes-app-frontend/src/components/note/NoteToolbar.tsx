@@ -3,20 +3,21 @@
 import { X } from "lucide-react";
 import CategoryDropdown from "@/components/home/CategoryDropdown";
 import { Category } from "@/types/category";
+import { useCategories } from "@/context/CategoriesContext";
 
 interface NoteToolbarProps {
   selected?: Category | null;
-  categories: Category[];
   onSelectCategory: (category: Category) => void;
   onClose: () => void;
 }
 
 export default function NoteToolbar({
   selected,
-  categories,
   onSelectCategory,
   onClose,
 }: NoteToolbarProps) {
+  const { categories } = useCategories();
+
   return (
     <div className="relative flex items-center justify-between px-4 h-[39px] mt-[33px] pointer-events-auto">
       <div className="w-[225px] h-[39px]">

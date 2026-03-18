@@ -11,7 +11,11 @@ interface NotesContentProps {
   onNoteClick: (note: Note) => void;
 }
 
-export default function NotesContent({ notes, isLoading, onNoteClick }: NotesContentProps) {
+export default function NotesContent({
+  notes,
+  isLoading,
+  onNoteClick,
+}: NotesContentProps) {
   if (isLoading) {
     return <NotesSkeleton />;
   }

@@ -1,24 +1,25 @@
 "use client";
 
 import { Category } from "@/types/category";
+import { useCategories } from "@/context/CategoriesContext";
 import CategoryItem from "./CategoryItem";
 import SidebarUserFooter from "./SidebarUserFooter";
 
 interface SidebarProps {
-  categories: Category[];
   onSelectCategory?: (category: Category) => void;
   selectedCategoryId?: string | null;
   counts?: Record<string, number>;
 }
 
 export default function Sidebar({
-  categories,
   onSelectCategory,
   selectedCategoryId = null,
   counts = {}
 }: SidebarProps) {
+  const { categories } = useCategories();
+
   return (
-    <aside className="flex flex-col w-[288px] shrink-0 h-[781px] mt-[35px] ml-[23px] hidden md:flex justify-between border-r border-black/5 pr-4 select-none">
+    <aside className="flex flex-col w-[288px] shrink-0 h-[781px] mt-[35px] ml-[23px] hidden md:flex justify-between select-none">
       <div className="flex flex-col gap-1">
         <header className="flex items-center px-4 py-2">
           <span className="font-sans font-bold text-[14px] leading-[17px] text-black">

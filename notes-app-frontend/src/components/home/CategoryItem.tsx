@@ -5,14 +5,16 @@ import { CATEGORY_DOT_COLORS } from "@/constants";
 
 interface CategoryItemProps {
   category: Category;
-  count: number;
+  count?: number;
+  showCount?: boolean;
   isSelected?: boolean;
   onClick?: () => void;
 }
 
 export default function CategoryItem({
   category,
-  count,
+  count = 0,
+  showCount = true,
   isSelected = false,
   onClick
 }: CategoryItemProps) {
@@ -21,7 +23,7 @@ export default function CategoryItem({
   return (
     <button
       onClick={onClick}
-      className={`flex flex-row items-center w-full px-4 py-2 gap-2 transition-all duration-200 rounded-lg group cursor-pointer`}
+      className={`flex flex-row items-center w-full px-4 py-2 gap-2 transition-all duration-200 rounded group cursor-pointer ${isSelected ? "bg-brand-gold/20" : ""}`}
     >
       <div className="relative flex items-center justify-center">
         <span
@@ -32,9 +34,11 @@ export default function CategoryItem({
         }`}>
         {category.label}
       </span>
-      <span className={`font-sans text-[11px] min-w-[1.2rem] text-center`}>
-        {count ?? 0}
-      </span>
+      {showCount && (
+        <span className={`font-sans text-[11px] min-w-[1.2rem] text-center text-black/30`}>
+          {count}
+        </span>
+      )}
     </button>
   );
 }

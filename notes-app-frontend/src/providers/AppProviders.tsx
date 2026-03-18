@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AuthProvider } from "@/context/AuthContext";
+import { CategoriesProvider } from "@/context/CategoriesContext";
 import { Toaster } from "sonner";
 
 export default function AppProviders({ children }: { children: React.ReactNode }) {
@@ -13,8 +14,10 @@ export default function AppProviders({ children }: { children: React.ReactNode }
 
   return (
     <AuthProvider>
-      {children}
-      {mounted && <Toaster richColors position="top-right" />}
+      <CategoriesProvider>
+        {children}
+        {mounted && <Toaster richColors position="top-right" />}
+      </CategoriesProvider>
     </AuthProvider>
   );
 }
