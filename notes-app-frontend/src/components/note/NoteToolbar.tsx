@@ -18,7 +18,7 @@ export default function NoteToolbar({
   onClose,
 }: NoteToolbarProps) {
   return (
-    <div className="relative flex items-center justify-between px-[37px] h-[39px] mt-[33px] pointer-events-auto">
+    <div className="relative flex items-center justify-between px-4 h-[39px] mt-[33px] pointer-events-auto">
       <div className="w-[225px] h-[39px]">
         <CategoryDropdown
           selected={selected}
@@ -32,7 +32,7 @@ export default function NoteToolbar({
         aria-label="Close note"
         className="text-brand-gold hover:opacity-70 transition-opacity p-1"
       >
-        <X size={24} className="text-[#957139]" />
+        <X size={32} className="text-[#957139]" cursor="pointer" />
       </button>
     </div>
   );

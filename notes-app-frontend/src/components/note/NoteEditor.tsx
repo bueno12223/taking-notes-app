@@ -30,7 +30,7 @@ export default function NoteEditor({
 
   return (
     <div
-      className={`relative flex flex-col w-full m-8 h-full border-[3px] shadow-[1px_1px_2px_rgba(0,0,0,0.25)] rounded-[11px] p-[39px_64px_64px] gap-[24px] pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-500 transition-colors duration-300 ${currentStyle}`}
+      className={`relative flex flex-col flex-1 m-4 border-[3px] shadow-[1px_1px_2px_rgba(0,0,0,0.25)] rounded-[11px] p-[39px_64px_64px] gap-[24px] pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-500 transition-colors duration-300 ${currentStyle}`}
     >
       <div className="min-h-[15px] text-right shrink-0">
         {activeError ? (
@@ -39,7 +39,7 @@ export default function NoteEditor({
           </span>
         ) : (
           <span className="font-sans font-normal text-[12px] leading-[15px] text-black">
-            {noteId !== null && lastSavedAt ? `Last Edited: ${formatLastEdited(lastSavedAt)}` : "Not saved yet"}
+            {noteId !== null && lastSavedAt ? `Last Edited: ${formatLastEdited(lastSavedAt)}` : ""}
           </span>
         )}
       </div>
@@ -49,17 +49,17 @@ export default function NoteEditor({
         value={values.title}
         onChange={(e) => setFieldValue("title", e.target.value)}
         placeholder="Note Title"
-        className="w-[1066px] h-[29px] bg-transparent border-none outline-none font-serif font-bold text-[24px] leading-[29px] text-black placeholder:text-black/40 shrink-0"
+        className="w-full h-[29px] bg-transparent border-none outline-none font-serif font-bold text-[24px] leading-[29px] text-black placeholder:text-black/40 shrink-0"
       />
 
-      <div className="flex-1 overflow-auto">
+      <div className="w-full flex-1 overflow-auto">
         <RichTextEditor
           content={values.content as Record<string, unknown>}
           onChange={(newContent) => setFieldValue("content", newContent)}
         />
       </div>
 
-      <div className="absolute left-[1118px] top-[623px]">
+      <div className="absolute right-4 bottom-4 cursor-pointer">
         <VoiceButton />
       </div>
     </div>

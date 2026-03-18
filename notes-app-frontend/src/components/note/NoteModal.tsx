@@ -68,12 +68,11 @@ export default function NoteModal({
   const selectedCategory = categories.find(c => c.value === form.values.category) || categories[0];
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center bg-brand-linen overflow-auto animate-in fade-in duration-300">
-      <div className="relative w-full h-full min-h-[832px]">
-        {/* Backdrop area trigger to close */}
+    <div className="fixed inset-0 z-50 flex flex-col items-center bg-brand-linen transition-opacity animate-in fade-in duration-300 overflow-hidden">
+      <div className="relative w-full h-full flex flex-col p-6 overflow-hidden">
         <div className="absolute inset-0 z-0" onClick={handleClose} />
 
-        <div className="relative z-10 animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
+        <div className="relative z-10 flex-1 flex flex-col animate-in zoom-in-95 slide-in-from-bottom-4 duration-500 overflow-hidden">
           <NoteToolbar
             selected={selectedCategory}
             categories={categories}
@@ -81,7 +80,7 @@ export default function NoteModal({
             onClose={handleClose}
           />
 
-          <div className="flex">
+          <div className="flex-1 flex min-h-0">
             <NoteEditor
               form={form}
               noteId={noteId}
