@@ -21,10 +21,8 @@ class NoteListViewTests(APITestCase):
 
     @patch("notes.authentication.CognitoAuthentication.authenticate")
     def test_authenticated_request_returns_notes_for_user_only(self, mock_auth):
-        # Mocking CognitoAuthentication returned (user, None)
         mock_auth.return_value = (CognitoUser(self.user1), None)
         
-        # Add a dummy Bearer token to trigger authentication classes
         response = self.client.get(self.url, HTTP_AUTHORIZATION="Bearer dummy-token")
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
