@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import NotesContent from "./components/NotesContent";
 import NoteModal from "@/components/note/NoteModal";
@@ -15,6 +15,7 @@ export default function HomePage() {
   const { data: categories = [] } = useApi<Category[]>("/api/categories/");
 
   const [localNotes, setLocalNotes] = useState<Note[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
@@ -46,9 +47,31 @@ export default function HomePage() {
     });
   };
 
+  const handleSelectCategory = (category: Category) => {
+    setSelectedCategoryId((prev) => (prev === category.value ? null : category.value));
+  };
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    localNotes.forEach((note) => {
+      counts[note.category] = (counts[note.category] || 0) + 1;
+    });
+    return counts;
+  }, [localNotes]);
+
+  const displayedNotes = useMemo(() => {
+    if (!selectedCategoryId) return localNotes;
+    return localNotes.filter((note) => note.category === selectedCategoryId);
+  }, [localNotes, selectedCategoryId]);
+
   return (
     <>
-      <AppLayout categories={categories ?? []}>
+      <AppLayout 
+        categories={categories ?? []} 
+        onSelectCategory={handleSelectCategory}
+        selectedCategoryId={selectedCategoryId}
+        counts={categoryCounts}
+      >
         <div className="flex-1 flex flex-col min-h-0">
           <header className="flex items-center justify-end px-[37px] py-[33px]">
             <Button
@@ -59,9 +82,9 @@ export default function HomePage() {
             />
           </header>
           
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto px-[37px] pb-[37px]">
             <NotesContent 
-              notes={localNotes} 
+              notes={displayedNotes} 
               isLoading={isNotesLoading} 
               onNoteClick={handleEditNote}
             />
