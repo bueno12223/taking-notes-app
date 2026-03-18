@@ -17,7 +17,7 @@ export default function SignUpPage() {
   const handleSubmit = async (values: AuthFormValues) => {
     try {
       await signUp(values.email, values.password);
-      toast.success("Account created! Please check your email to verify.");
+      toast.success("Account created! Please login");
       router.push("/login");
     } catch (err) {
       toast.error(getFriendlyErrorMessage(err));

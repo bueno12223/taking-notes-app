@@ -17,7 +17,7 @@ export default function LoginPage() {
   const handleSubmit = async (values: AuthFormValues) => {
     try {
       await signIn(values.email, values.password);
-      router.push("/");
+      router.push("/home");
     } catch (err) {
       toast.error(getFriendlyErrorMessage(err));
     }
