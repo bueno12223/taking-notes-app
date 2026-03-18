@@ -20,3 +20,11 @@ def create_note(cognito_user_id: str, title: str, content: str, category: str) -
         content=content,
         category=category,
     )
+
+
+def update_note(note_id: int, cognito_user_id: str, updates: dict) -> Note:
+    note = Note.objects.get(id=note_id, cognito_user_id=cognito_user_id)
+    for field, value in updates.items():
+        setattr(note, field, value)
+    note.save()
+    return note

@@ -1,14 +1,18 @@
 from django.test import TestCase
 from notes.models import Note
-from notes.services import get_notes_by_user, create_note
+from notes.services import get_notes_by_user, create_note, update_note
+
+
+TIPTAP_CONTENT = {"type": "doc", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Hello"}]}]}
+
 
 class NoteServicesTest(TestCase):
     def setUp(self):
         self.user1 = "user-123"
         self.user2 = "user-456"
-        Note.objects.create(cognito_user_id=self.user1, title="User 1 Note", content="Content 1", category="brand-peach")
-        Note.objects.create(cognito_user_id=self.user1, title="User 1 Note 2", content="Content 2", category="brand-peach")
-        Note.objects.create(cognito_user_id=self.user2, title="User 2 Note", content="Content 3", category="brand-peach")
+        Note.objects.create(cognito_user_id=self.user1, title="User 1 Note", content=TIPTAP_CONTENT, category="brand-peach")
+        Note.objects.create(cognito_user_id=self.user1, title="User 1 Note 2", content=TIPTAP_CONTENT, category="brand-peach")
+        Note.objects.create(cognito_user_id=self.user2, title="User 2 Note", content=TIPTAP_CONTENT, category="brand-peach")
 
     def test_get_notes_by_user_returns_only_user_notes(self):
         notes = get_notes_by_user(self.user1)
@@ -32,10 +36,23 @@ class NoteServicesTest(TestCase):
         note = create_note(
             cognito_user_id="user-999",
             title="New valid note",
-            content="Some content",
+            content=TIPTAP_CONTENT,
             category="brand-peach"
         )
         self.assertEqual(note.cognito_user_id, "user-999")
         self.assertEqual(Note.objects.filter(cognito_user_id="user-999").count(), 1)
-        
 
+    def test_update_note_updates_fields(self):
+        note = Note.objects.filter(cognito_user_id=self.user1).first()
+        updated = update_note(
+            note_id=note.id,
+            cognito_user_id=self.user1,
+            updates={"title": "Updated Title"},
+        )
+        self.assertEqual(updated.title, "Updated Title")
+        self.assertEqual(updated.id, note.id)
+
+    def test_update_note_raises_for_wrong_user(self):
+        note = Note.objects.filter(cognito_user_id=self.user1).first()
+        with self.assertRaises(Note.DoesNotExist):
+            update_note(note_id=note.id, cognito_user_id=self.user2, updates={"title": "Hack"})
