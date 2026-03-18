@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { useApi } from "./useApi";
+import { MAX_RECORDING_TIME } from "@/constants";
 
 interface UseVoiceRecorderProps {
   onTranscript: (text: string) => void;
@@ -79,7 +80,6 @@ export function useVoiceRecorder({ onTranscript }: UseVoiceRecorderProps): UseVo
     stopRecordingRef.current = stopRecordingAction;
   }, [stopRecordingAction]);
 
-  const MAX_RECORDING_TIME = 60000; // 60 seconds
   const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const startRecording = useCallback(async () => {
@@ -129,7 +129,7 @@ export function useVoiceRecorder({ onTranscript }: UseVoiceRecorderProps): UseVo
 
       recordingTimeoutRef.current = setTimeout(() => {
         if (isRecordingRef.current) {
-          toast.info("Recording reached 60s limit. Processing...");
+          toast.info(`Recording reached ${MAX_RECORDING_TIME / 1000}s limit. Processing...`);
           stopRecordingRef.current();
         }
       }, MAX_RECORDING_TIME);
@@ -146,7 +146,6 @@ export function useVoiceRecorder({ onTranscript }: UseVoiceRecorderProps): UseVo
     isMutedRef.current = nextMuted;
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (recordingTimeoutRef.current) {

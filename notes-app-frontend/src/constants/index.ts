@@ -35,3 +35,8 @@ export const CATEGORY_DOT_COLORS: Record<string, string> = {
  * Debounce delay for the autosave logic in milliseconds.
  */
 export const AUTOSAVE_DELAY = 1000;
+
+/**
+ * Maximum recording time in milliseconds for the voice recorder.
+ */
+export const MAX_RECORDING_TIME = 60000;

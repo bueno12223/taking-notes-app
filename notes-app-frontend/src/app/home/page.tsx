@@ -7,9 +7,9 @@ import NoteModal from "@/components/note/NoteModal";
 import Button from "@/components/ui/Button";
 import { Plus } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
-import { useCategories } from "@/context/CategoriesContext";
 import { Note } from "@/types/note";
 import { Category } from "@/types/category";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 export default function HomePage() {
   const { data: initialNotes, isLoading: isNotesLoading } = useApi<Note[]>("/api/notes/");
@@ -66,7 +66,7 @@ export default function HomePage() {
   }, [localNotes, initialNotes, selectedCategoryId]);
 
   return (
-    <>
+    <AuthGuard>
       <AppLayout
         onSelectCategory={handleSelectCategory}
         selectedCategoryId={selectedCategoryId}
@@ -98,6 +98,6 @@ export default function HomePage() {
         note={selectedNote}
         onNoteSaved={handleNoteSaved}
       />
-    </>
+    </AuthGuard>
   );
 }

@@ -9,12 +9,24 @@ import { getInitialValues, loginSchema, AuthFormValues } from "@/components/form
 import { useAuth } from "@/context/AuthContext";
 import { getFriendlyErrorMessage } from "@/lib/error-mapping";
 import cactusImage from "@/assets/cactus.webp";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function LoginPage() {
-  const { signIn } = useAuth();
+  const { user, isLoading, signIn } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && user) router.push("/home");
+  }, [isLoading, user, router]);
+
+  if (isLoading || user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-linen">
+        <span className="text-brand-gold font-sans text-sm">Loading...</span>
+      </div>
+    );
+  }
 
   const handleSubmit = async (values: AuthFormValues) => {
     try {
