@@ -1,7 +1,8 @@
 "use client";
 
-import VoiceButton from "./VoiceButton";
-import RichTextEditor from "./RichTextEditor";
+import React, { useRef, useState, useCallback } from "react";
+import RichTextEditor, { RichTextEditorRef } from "./components/RichTextEditor";
+import VoiceRecorder from "./components/VoiceRecorder";
 import { AutosaveErrors, SaveStatus } from "@/hooks/useAutosave";
 import { CATEGORY_STYLES } from "@/constants";
 import { formatLastEdited } from "@/lib/note-utils";
@@ -17,16 +18,22 @@ interface NoteEditorProps {
   onClose: () => void;
 }
 
-export default function NoteEditor({
+export default function NoteForm({
   form,
   noteId,
   autosaveErrors,
   lastSavedAt,
 }: NoteEditorProps) {
   const { values, setFieldValue } = form;
-  const activeError = autosaveErrors.title || autosaveErrors.category || autosaveErrors.content || null;
+  const editorRef = useRef<RichTextEditorRef>(null);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
 
+  const activeError = autosaveErrors.title || autosaveErrors.category || autosaveErrors.content || null;
   const currentStyle = CATEGORY_STYLES[values.category] || CATEGORY_STYLES["brand-peach"];
+
+  const handleTranscript = useCallback((text: string) => {
+    editorRef.current?.appendText(text);
+  }, []);
 
   return (
     <div
@@ -54,14 +61,18 @@ export default function NoteEditor({
 
       <div className="w-full flex-1 overflow-auto">
         <RichTextEditor
+          ref={editorRef}
           content={values.content as Record<string, unknown>}
           onChange={(newContent) => setFieldValue("content", newContent)}
         />
       </div>
 
-      <div className="absolute right-4 bottom-4 cursor-pointer">
-        <VoiceButton />
-      </div>
+      <VoiceRecorder
+        category={values.category}
+        onTranscript={handleTranscript}
+        isActive={isVoiceActive}
+        setIsActive={setIsVoiceActive}
+      />
     </div>
   );
 }

@@ -12,7 +12,6 @@ import { Note } from "@/types/note";
 import { Category } from "@/types/category";
 
 export default function HomePage() {
-  const { categories } = useCategories();
   const { data: initialNotes, isLoading: isNotesLoading } = useApi<Note[]>("/api/notes/");
 
   const [localNotes, setLocalNotes] = useState<Note[]>([]);
@@ -61,13 +60,14 @@ export default function HomePage() {
   }, [localNotes]);
 
   const displayedNotes = useMemo(() => {
-    if (!selectedCategoryId) return localNotes;
-    return localNotes.filter((note) => note.category === selectedCategoryId);
-  }, [localNotes, selectedCategoryId]);
+    const source = (localNotes.length === 0 && initialNotes) ? initialNotes : localNotes;
+    if (!selectedCategoryId) return source;
+    return source.filter((note) => note.category === selectedCategoryId);
+  }, [localNotes, initialNotes, selectedCategoryId]);
 
   return (
     <>
-      <AppLayout 
+      <AppLayout
         onSelectCategory={handleSelectCategory}
         selectedCategoryId={selectedCategoryId}
         counts={categoryCounts}
@@ -81,11 +81,11 @@ export default function HomePage() {
               iconPosition="left"
             />
           </header>
-          
+
           <div className="flex-1 overflow-auto px-[37px] pb-[37px]">
-            <NotesContent 
-              notes={displayedNotes} 
-              isLoading={isNotesLoading} 
+            <NotesContent
+              notes={displayedNotes}
+              isLoading={isNotesLoading}
               onNoteClick={handleEditNote}
             />
           </div>

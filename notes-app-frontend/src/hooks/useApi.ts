@@ -45,18 +45,34 @@ async function getAuthToken(): Promise<string | null> {
 async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const token = await getAuthToken();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
-  const headers: HeadersInit = { "Content-Type": "application/json" };
 
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const headers: HeadersInit = {};
+  const isBinary = options.body instanceof ArrayBuffer || options.body instanceof Blob;
+
+  if (!isBinary) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
 
   const response = await fetch(`${baseUrl}${endpoint}`, {
     method: options.method ?? "GET",
     headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body: options.body
+      ? (isBinary ? (options.body as BodyInit) : JSON.stringify(options.body))
+      : undefined,
   });
 
   if (!response.ok) {
-    throw new Error(response.statusText ?? "An unexpected error occurred.");
+    let errorMessage = response.statusText ?? "An unexpected error occurred.";
+    try {
+      const errorJson = await response.json();
+      errorMessage = errorJson.error || errorJson.message || errorMessage;
+    } catch {
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json() as Promise<T>;

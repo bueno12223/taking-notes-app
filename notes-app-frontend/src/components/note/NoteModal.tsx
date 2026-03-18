@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import NoteEditor from "./NoteEditor";
-import NoteToolbar from "./NoteToolbar";
+import NoteForm from "@/components/forms/NoteForm";
+import NoteToolbar from "@/components/forms/NoteForm/components/NoteToolbar";
 import { useAutosave } from "@/hooks/useAutosave";
 import { Note } from "@/types/note";
 import { useCustomForm } from "@/hooks/use-custom-form";
-import { getInitialNoteValues, noteValidationSchema, NoteFormValues } from "./validations";
+import { getInitialNoteValues, noteValidationSchema, NoteFormValues } from "@/components/forms/NoteForm/validations";
 import { useCategories } from "@/context/CategoriesContext";
 
 interface NoteModalProps {
@@ -81,7 +81,7 @@ export default function NoteModal({
           />
 
           <div className="flex-1 flex min-h-0">
-            <NoteEditor
+            <NoteForm
               form={form}
               noteId={noteId}
               saveStatus={saveStatus}
