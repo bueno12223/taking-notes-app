@@ -1,20 +1,30 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import AuthForm from "@/components/forms/AuthForm";
-import { getInitialValues, loginSchema } from "@/components/forms/AuthForm/validations";
+import { getInitialValues, loginSchema, AuthFormValues } from "@/components/forms/AuthForm/validations";
+import { useAuth } from "@/context/AuthContext";
+import { getFriendlyErrorMessage } from "@/lib/error-mapping";
 import cactusImage from "@/assets/cactus.webp";
 
 export default function LoginPage() {
+  const { signIn } = useAuth();
+  const router = useRouter();
+
+  const handleSubmit = async (values: AuthFormValues) => {
+    try {
+      await signIn(values.email, values.password);
+      router.push("/");
+    } catch (err) {
+      toast.error(getFriendlyErrorMessage(err));
+    }
+  };
+
   const illustration = (
-    <Image
-      src={cactusImage}
-      alt="Cactus illustration"
-      width={95}
-      height={114}
-      priority
-    />
+    <Image src={cactusImage} alt="Cactus illustration" width={95} height={114} priority />
   );
 
   return (
@@ -25,7 +35,7 @@ export default function LoginPage() {
         buttonLabel="Login"
         footerLabel="Oops! I've never been here before"
         footerHref="/signup"
-        onSubmit={(values) => console.log("Login:", values)}
+        onSubmit={handleSubmit}
       />
     </AuthLayout>
   );

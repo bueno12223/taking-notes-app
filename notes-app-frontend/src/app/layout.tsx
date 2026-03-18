@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inria_Serif, Inter } from "next/font/google";
+import AppProviders from "@/components/providers/AppProviders";
 import "./globals.css";
 
 const inriaSerif = Inria_Serif({
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inriaSerif.variable} ${inter.variable} antialiased`}>
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
