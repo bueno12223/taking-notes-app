@@ -9,10 +9,7 @@ export default function AuthLayout({ illustration, heading, children }: AuthLayo
     <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 bg-brand-linen">
       <div className="w-full max-w-[384px] flex flex-col items-center gap-6">
         <div className="flex justify-center">{illustration}</div>
-        <h1
-          className="text-center font-serif font-bold text-brand-walnut pb-4"
-          style={{ fontSize: "48px", lineHeight: "100%" }}
-        >
+        <h1 className="text-heading text-brand-walnut pb-4 text-center">
           {heading}
         </h1>
         {children}
