@@ -9,7 +9,7 @@ interface NotesGridProps {
 
 export default function NotesGrid({ notes, onNoteClick }: NotesGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+    <div className="flex flex-row flex-wrap items-start content-start p-0 gap-y-[16px] gap-x-[13px]">
       {notes.map((note) => (
         <NoteCard 
           key={note.id} 

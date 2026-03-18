@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import NotesContent from "./components/NotesContent";
 import NoteModal from "@/components/note/NoteModal";
+import Button from "@/components/ui/Button";
+import { Plus } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { Note } from "@/types/note";
 import { Category } from "@/types/category";
@@ -46,13 +48,24 @@ export default function HomePage() {
 
   return (
     <>
-      <AppLayout categories={categories ?? []} onNewNote={handleNewNote}>
-        <div className="flex-1 flex flex-col overflow-auto h-full">
-          <NotesContent
-            notes={localNotes}
-            isLoading={isNotesLoading}
-            onNoteClick={handleEditNote}
-          />
+      <AppLayout categories={categories ?? []}>
+        <div className="flex-1 flex flex-col min-h-0">
+          <header className="flex items-center justify-end px-[37px] py-[33px]">
+            <Button
+              label="New Note"
+              onClick={handleNewNote}
+              icon={<Plus size={16} />}
+              iconPosition="left"
+            />
+          </header>
+          
+          <div className="flex-1 overflow-auto">
+            <NotesContent 
+              notes={localNotes} 
+              isLoading={isNotesLoading} 
+              onNoteClick={handleEditNote}
+            />
+          </div>
         </div>
       </AppLayout>
 

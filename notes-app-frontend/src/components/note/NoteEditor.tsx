@@ -1,69 +1,67 @@
 "use client";
 
-import { format } from "date-fns";
 import VoiceButton from "./VoiceButton";
 import RichTextEditor from "./RichTextEditor";
-import { AutosaveErrors } from "@/hooks/useAutosave";
-import { CATEGORY_STYLES } from "./constants";
+import { AutosaveErrors, SaveStatus } from "@/hooks/useAutosave";
+import { CATEGORY_STYLES } from "@/constants";
+import { formatLastEdited } from "@/lib/note-utils";
+import { FormikProps } from "formik";
+import { NoteFormValues } from "./validations";
 
 interface NoteEditorProps {
+  form: FormikProps<NoteFormValues>;
   noteId: number | null;
+  saveStatus: SaveStatus;
+  autosaveErrors: AutosaveErrors;
   lastSavedAt: string | null;
-  title: string;
-  content: Record<string, unknown>;
-  category: string;
-  onTitleChange: (title: string) => void;
-  onContentChange: (content: Record<string, unknown>) => void;
-  errors: AutosaveErrors;
-}
-
-function formatLastEdited(isoDate: string): string {
-  return format(new Date(isoDate), "MMMM d, yyyy 'at' h:mmaaaaa'm'");
+  onClose: () => void;
 }
 
 export default function NoteEditor({
+  form,
   noteId,
+  autosaveErrors,
   lastSavedAt,
-  title,
-  content,
-  category,
-  onTitleChange,
-  onContentChange,
-  errors,
 }: NoteEditorProps) {
-  const activeError = errors.title || errors.category || errors.content || null;
-  
-  const currentStyle = CATEGORY_STYLES[category] || CATEGORY_STYLES["brand-peach"];
+  const { values, setFieldValue } = form;
+  const activeError = autosaveErrors.title || autosaveErrors.category || autosaveErrors.content || null;
+
+  const currentStyle = CATEGORY_STYLES[values.category] || CATEGORY_STYLES["brand-peach"];
 
   return (
     <div
-      className={`relative flex flex-col flex-1 mx-[37px] mb-[64px] mt-[15px] rounded-[11px] p-[39px_64px_64px] gap-6 overflow-hidden border-[3px] shadow-[1px_1px_2px_rgba(0,0,0,0.25)] transition-colors duration-300 ${currentStyle}`}
+      className={`relative flex flex-col w-full m-8 h-full border-[3px] shadow-[1px_1px_2px_rgba(0,0,0,0.25)] rounded-[11px] p-[39px_64px_64px] gap-[24px] pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-500 transition-colors duration-300 ${currentStyle}`}
     >
-      <div className="min-h-[18px] text-right">
+      <div className="min-h-[15px] text-right shrink-0">
         {activeError ? (
-          <span className="font-sans font-normal text-[12px] text-brand-gold animate-in fade-in slide-in-from-top-1">
+          <span className="font-sans font-normal text-[12px] leading-[15px] text-brand-gold animate-in fade-in slide-in-from-top-1">
             {activeError}
           </span>
         ) : (
-          <span className="font-sans font-normal text-[12px] text-black/50">
-            {noteId !== null && lastSavedAt ? formatLastEdited(lastSavedAt) : ""}
+          <span className="font-sans font-normal text-[12px] leading-[15px] text-black">
+            {noteId !== null && lastSavedAt ? `Last Edited: ${formatLastEdited(lastSavedAt)}` : "Not saved yet"}
           </span>
         )}
       </div>
 
       <input
         type="text"
-        value={title}
-        onChange={(e) => onTitleChange(e.target.value)}
+        value={values.title}
+        onChange={(e) => setFieldValue("title", e.target.value)}
         placeholder="Note Title"
-        className="w-full bg-transparent border-none outline-none font-serif font-bold text-[24px] text-black placeholder:text-black/40"
+        className="w-[1066px] h-[29px] bg-transparent border-none outline-none font-serif font-bold text-[24px] leading-[29px] text-black placeholder:text-black/40 shrink-0"
       />
 
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <RichTextEditor content={content} onChange={onContentChange} />
+      <div className="flex-1 overflow-auto">
+        <RichTextEditor
+          content={values.content as Record<string, unknown>}
+          onChange={(newContent) => setFieldValue("content", newContent)}
+        />
       </div>
 
-      <VoiceButton />
+      <div className="absolute left-[1118px] top-[623px]">
+        <VoiceButton />
+      </div>
     </div>
   );
 }

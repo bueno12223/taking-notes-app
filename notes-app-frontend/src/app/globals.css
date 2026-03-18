@@ -157,3 +157,7 @@
     text-decoration: underline;
   }
 }
+
+@utility mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+}

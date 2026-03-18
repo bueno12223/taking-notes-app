@@ -1,104 +1,98 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
-import NoteToolbar from "./NoteToolbar";
+import React, { useState, useEffect } from "react";
 import NoteEditor from "./NoteEditor";
+import NoteToolbar from "./NoteToolbar";
+import { useAutosave } from "@/hooks/useAutosave";
 import { Note } from "@/types/note";
 import { Category } from "@/types/category";
-import { useAutosave } from "@/hooks/useAutosave";
-import { AUTOSAVE_DELAY } from "./constants";
+import { useCustomForm } from "@/hooks/use-custom-form";
+import { getInitialNoteValues, noteValidationSchema, NoteFormValues } from "./validations";
 
 interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  note?: Note | null;
+  note: Note | null;
   categories: Category[];
-  onNoteSaved?: (note: Note) => void;
+  onNoteSaved: (updatedNote: Note) => void;
 }
 
-export default function NoteModal({ 
-  isOpen, 
-  onClose, 
-  note, 
+export default function NoteModal({
+  isOpen,
+  onClose,
+  note,
   categories,
   onNoteSaved
 }: NoteModalProps) {
   const [noteId, setNoteId] = useState<number | null>(note?.id ?? null);
-  const [title, setTitle] = useState(note?.title ?? "");
-  const [content, setContent] = useState<Record<string, unknown>>(note?.content ?? {});
-  const [category, setCategory] = useState(note?.category ?? categories[0]?.value ?? "");
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(note?.updated_at ?? null);
   const [pendingClose, setPendingClose] = useState(false);
 
-  const initialLastSavedAt = note?.updated_at ?? null;
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setNoteId(note?.id ?? null);
-    setTitle(note?.title ?? "");
-    setContent(note?.content ?? {});
-    setCategory(note?.category ?? categories[0]?.value ?? "");
-    setPendingClose(false);
-  }, [isOpen, note, categories]);
-
-  const { saveStatus, errors, lastSavedAt } = useAutosave({
-    noteId,
-    data: { title, content, category },
-    onSaveSuccess: (updatedNote) => {
-      setNoteId(updatedNote.id);
-      onNoteSaved?.(updatedNote);
-    },
-    initialLastSavedAt,
-    delay: AUTOSAVE_DELAY,
+  const form = useCustomForm<NoteFormValues>({
+    initialValues: getInitialNoteValues(note, categories[0]?.value),
+    validationSchema: noteValidationSchema,
+    onSubmit: () => { },
   });
 
-  useEffect(() => {
-    if (pendingClose && saveStatus !== "saving") {
-      setPendingClose(false);
-      onClose();
-    }
-  }, [pendingClose, saveStatus, onClose]);
-
-  const selectedCategory = categories.find((c) => c.value === category) ?? null;
-
-  const handleCategorySelect = (cat: Category) => setCategory(cat.value);
-
-  const handleClose = () => {
-    if (saveStatus === "saving") {
-      setPendingClose(true);
-    } else {
+  const onSaveSuccess = (savedNote: Note) => {
+    setNoteId(savedNote.id);
+    setLastSavedAt(savedNote.updated_at);
+    onNoteSaved(savedNote);
+    if (pendingClose) {
       onClose();
     }
   };
 
+  const { saveStatus, errors: autosaveErrors } = useAutosave({
+    noteId,
+    data: form.values,
+    onSaveSuccess,
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      setNoteId(note?.id ?? null);
+      setLastSavedAt(note?.updated_at ?? null);
+      form.setValues(getInitialNoteValues(note, categories[0]?.value));
+      setPendingClose(false);
+    }
+  }, [isOpen, note, categories]);
+
+  const handleClose = () => {
+    if (saveStatus === "saving") return setPendingClose(true);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  const selectedCategory = categories.find(c => c.value === form.values.category) || categories[0];
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: "100%" }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: "100%" }}
-          transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed inset-0 z-50 bg-brand-linen flex flex-col overflow-hidden"
-        >
+    <div className="fixed inset-0 z-50 flex flex-col items-center bg-brand-linen overflow-auto animate-in fade-in duration-300">
+      <div className="relative w-full h-full min-h-[832px]">
+        {/* Backdrop area trigger to close */}
+        <div className="absolute inset-0 z-0" onClick={handleClose} />
+
+        <div className="relative z-10 animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
           <NoteToolbar
             selected={selectedCategory}
             categories={categories}
-            onSelectCategory={handleCategorySelect}
+            onSelectCategory={(cat) => form.setFieldValue("category", cat.value)}
             onClose={handleClose}
           />
-          <NoteEditor
-            noteId={noteId}
-            lastSavedAt={lastSavedAt}
-            title={title}
-            content={content}
-            category={category}
-            onTitleChange={setTitle}
-            onContentChange={setContent}
-            errors={errors}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+          <div className="flex">
+            <NoteEditor
+              form={form}
+              noteId={noteId}
+              saveStatus={saveStatus}
+              autosaveErrors={autosaveErrors}
+              lastSavedAt={lastSavedAt}
+              onClose={handleClose}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

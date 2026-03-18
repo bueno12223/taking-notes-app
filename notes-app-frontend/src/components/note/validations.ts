@@ -1,28 +1,43 @@
-import * as yup from "yup";
+import * as Yup from "yup";
+import { Note, TiptapNode } from "@/types/note";
+import { isContentEmpty } from "@/lib/note-utils";
 
 export interface NoteFormValues {
   title: string;
-  content: Record<string, unknown>;
+  content: TiptapNode | Record<string, unknown>;
   category: string;
 }
 
-export const noteInitialValues: NoteFormValues = {
+export const initialNoteValues: NoteFormValues = {
   title: "",
   content: {},
-  category: "",
+  category: "brand-peach",
 };
 
-export const getNoteInitialValues = (): NoteFormValues => ({ ...noteInitialValues });
+export const getInitialNoteValues = (note: Note | null, defaultCategory: string): NoteFormValues => {
+  if (!note) {
+    return {
+      ...initialNoteValues,
+      category: defaultCategory || "brand-peach",
+    };
+  }
+  return {
+    title: note.title,
+    content: note.content,
+    category: note.category,
+  };
+};
 
-export const noteSchema = yup.object({
-  title: yup.string().max(255, "Title must be 255 characters or fewer").required("Title is required"),
-  content: yup
-    .mixed<Record<string, unknown>>()
-    .test("has-content", "Content is required", (value) => {
-      if (!value || typeof value !== "object") return false;
-      const doc = value as { content?: unknown[] };
-      return Array.isArray(doc.content) && doc.content.length > 0;
-    })
-    .required("Content is required"),
-  category: yup.string().required("Category is required"),
-});
+export const noteValidationSchema = Yup.object({
+  title: Yup.string()
+    .required("Add a title to save")
+    .trim(),
+  category: Yup.string()
+    .required("Select a category to save"),
+  content: Yup.mixed<TiptapNode | Record<string, unknown>>()
+    .required("Add some content to save")
+    .test("is-not-empty", "Add some content to save", (value) => {
+      if (!value) return false;
+      return !isContentEmpty(value as TiptapNode);
+    }),
+}).defined();

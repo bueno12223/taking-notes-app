@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Note } from "@/types/note";
+import { Note, TiptapNode } from "@/types/note";
 import { useApi } from "./useApi";
+import { AUTOSAVE_DELAY } from "@/constants";
+import { isContentEmpty } from "@/lib/note-utils";
 
 export type AutosaveFields = Pick<Note, "title" | "content" | "category">;
 export type SaveStatus = "idle" | "saving" | "saved";
@@ -14,32 +16,48 @@ export interface AutosaveErrors {
 }
 
 interface UseAutosaveProps {
+  /** The unique identifier of the note. Null if creating a new note. */
   noteId: number | null;
+  /** The data to be autosaved. */
   data: AutosaveFields;
+  /** Callback triggered when a save operation completes successfully. */
   onSaveSuccess: (note: Note) => void;
+  /** Optional initial ISO date of the last save. */
   initialLastSavedAt?: string | null;
+  /** Optional debounce delay in milliseconds. Defaults to global AUTOSAVE_DELAY. */
   delay?: number;
 }
 
 interface UseAutosaveResult {
+  /** Current status of the save operation (idle, saving, or saved). */
   saveStatus: SaveStatus;
+  /** Field-specific validation errors. */
   errors: AutosaveErrors;
+  /** True if all fields are valid for saving. */
   isValid: boolean;
+  /** ISO timestamp of the last successful save. */
   lastSavedAt: string | null;
 }
 
-function isContentEmpty(content: Record<string, unknown>): boolean {
-  const doc = content as { content?: { content?: unknown[] }[] };
-  if (!doc.content || doc.content.length === 0) return true;
-  return doc.content.every((node) => !node.content || node.content.length === 0);
-}
-
+/**
+ * A custom hook that handles automatic saving of note data with debouncing and validation.
+ * 
+ * It manages both creation (POST) and updates (PATCH) depending on whether `noteId` is provided.
+ * Saving only occurs if the data is valid and has changed since the last successful save.
+ * 
+ * @example
+ * const { saveStatus, errors } = useAutosave({
+ *   noteId: actualNoteId,
+ *   data: { title, content, category },
+ *   onSaveSuccess: (note) => console.log("Saved!", note)
+ * });
+ */
 export function useAutosave({
   noteId,
   data,
   onSaveSuccess,
   initialLastSavedAt = null,
-  delay = 1000,
+  delay = AUTOSAVE_DELAY,
 }: UseAutosaveProps): UseAutosaveResult {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(initialLastSavedAt);
@@ -84,7 +102,7 @@ export function useAutosave({
     async (saveData: AutosaveFields) => {
       const dataString = JSON.stringify(saveData);
       if (isSavingRef.current || dataString === lastSuccessfullySavedDataRef.current) return;
-      
+
       isSavingRef.current = true;
       setSaveStatus("saving");
 
@@ -93,9 +111,9 @@ export function useAutosave({
         let savedNote: Note | null = null;
 
         if (id === null) {
-          savedNote = await createNote({ method: "POST", body: saveData });
+          savedNote = await createNote({ method: "POST", body: saveData as Record<string, unknown> });
         } else {
-          savedNote = await updateNote({ method: "PATCH", body: saveData });
+          savedNote = await updateNote({ method: "PATCH", body: saveData as Record<string, unknown> });
         }
 
         if (savedNote) {
@@ -103,8 +121,7 @@ export function useAutosave({
           lastSuccessfullySavedDataRef.current = dataString;
           setLastSavedAt(savedNote.updated_at);
           setSaveStatus("saved");
-          
-          // Notify parent of successful save (create or update)
+
           onSaveSuccess(savedNote);
 
           if (savedFadeTimerRef.current) clearTimeout(savedFadeTimerRef.current);
@@ -138,7 +155,7 @@ export function useAutosave({
     if (JSON.stringify(data) === lastSuccessfullySavedDataRef.current) return;
 
     if (timerRef.current) clearTimeout(timerRef.current);
-    
+
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
       saveRef.current(latestDataRef.current);

@@ -1,6 +1,11 @@
+"use client";
+
 import React from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import { Note } from "@/types/note";
-import { extractPlainText } from "@/lib/note-utils";
+import { formatCardDate } from "@/lib/note-utils";
+import { CATEGORY_CARD_STYLES } from "@/constants";
 
 interface NoteCardProps {
   note: Note;
@@ -8,31 +13,42 @@ interface NoteCardProps {
 }
 
 export default function NoteCard({ note, onClick }: NoteCardProps) {
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(note.updated_at));
+  const dateLabel = formatCardDate(note.updated_at);
+  const cardStyle = CATEGORY_CARD_STYLES[note.category] || CATEGORY_CARD_STYLES["brand-peach"];
 
-  const plainText = extractPlainText(note.content);
-  const truncatedContent = plainText.length > 150 ? plainText.substring(0, 150) + "..." : plainText;
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: note.content,
+    editable: false,
+    editorProps: {
+      attributes: {
+        class: "font-sans text-[12px] leading-[15px] text-black pointer-events-none p-0",
+      },
+    },
+    immediatelyRender: false,
+  });
 
   return (
-    <article 
+    <article
       onClick={onClick}
-      className="bg-[#FAF1E3] border border-[#957139]/20 rounded-[12px] p-6 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+      className={`relative flex flex-col w-[303px] h-[246px] rounded-[11px] p-4 gap-3 transition-all cursor-pointer border-[3px] shadow-[1px_1px_2px_rgba(0,0,0,0.25)] hover:brightness-95 active:scale-[0.98] overflow-hidden shrink-0 ${cardStyle}`}
     >
-      <div className="flex flex-col gap-1">
-        <span className="font-sans font-normal text-[12px] text-brand-walnut/60">
-          {formattedDate}
+      <header className="flex items-start gap-2 h-[15px] shrink-0">
+        <span className="font-sans font-bold text-[12px] leading-[15px] text-black shrink-0">
+          {dateLabel}
         </span>
-        <h3 className="font-serif font-bold text-[20px] text-brand-walnut leading-tight group-hover:text-brand-gold transition-colors">
-          {note.title}
-        </h3>
+        <span className="font-sans font-normal text-[12px] leading-[15px] text-black/50 overflow-hidden text-ellipsis whitespace-nowrap">
+          {note.category.replace("brand-", "")}
+        </span>
+      </header>
+
+      <h3 className="w-full h-[29px] font-serif font-bold text-[24px] leading-[29px] text-black overflow-hidden text-ellipsis whitespace-nowrap shrink-0">
+        {note.title}
+      </h3>
+
+      <div className="w-full h-[125px] overflow-hidden mask-fade-bottom">
+        <EditorContent editor={editor} />
       </div>
-      <p className="font-sans font-normal text-[14px] text-black/70 leading-relaxed whitespace-pre-wrap">
-        {truncatedContent}
-      </p>
     </article>
   );
 }
