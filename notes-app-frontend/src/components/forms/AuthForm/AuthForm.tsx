@@ -4,15 +4,30 @@ import Link from "next/link";
 import AuthInput from "@/components/auth/AuthInput";
 import AuthButton from "@/components/auth/AuthButton";
 import { useCustomForm } from "@/hooks/use-custom-form";
-import { getInitialValues, signUpSchema, SignUpFormValues } from "./validations";
+import { Schema } from "yup";
+import { AuthFormValues } from "./validations";
 
-export default function SignUpForm() {
-  const form = useCustomForm<SignUpFormValues>({
-    initialValues: getInitialValues(),
-    validationSchema: signUpSchema,
-    onSubmit: async (values) => {
-      console.log(values);
-    },
+interface AuthFormProps {
+  initialValues: AuthFormValues;
+  validationSchema: Schema<AuthFormValues>;
+  buttonLabel: string;
+  footerLabel: string;
+  footerHref: string;
+  onSubmit: (values: AuthFormValues) => void;
+}
+
+export default function AuthForm({
+  initialValues,
+  validationSchema,
+  buttonLabel,
+  footerLabel,
+  footerHref,
+  onSubmit,
+}: AuthFormProps) {
+  const form = useCustomForm<AuthFormValues>({
+    initialValues,
+    validationSchema,
+    onSubmit: (values) => onSubmit(values),
   });
 
   return (
@@ -24,7 +39,7 @@ export default function SignUpForm() {
         value={form.values.email}
         onChange={form.handleChange}
         onBlur={form.handleBlur}
-        error={form.touched.email ? form.errors.email : undefined}
+        error={form.touched.email ? (form.errors.email as string) : undefined}
       />
       <AuthInput
         type="password"
@@ -33,15 +48,15 @@ export default function SignUpForm() {
         value={form.values.password}
         onChange={form.handleChange}
         onBlur={form.handleBlur}
-        error={form.touched.password ? form.errors.password : undefined}
+        error={form.touched.password ? (form.errors.password as string) : undefined}
       />
       <div className="flex flex-col items-center gap-[12px] mt-6">
-        <AuthButton label="Sign Up" type="submit" />
+        <AuthButton label={buttonLabel} type="submit" />
         <Link
-          href="/auth/login"
+          href={footerHref}
           className="text-[12px] font-normal font-sans underline text-brand-gold"
         >
-          We&apos;re already friends!
+          {footerLabel}
         </Link>
       </div>
     </form>
