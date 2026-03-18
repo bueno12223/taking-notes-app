@@ -1,7 +1,6 @@
 version: 1
 applications:
   - appRoot: notes-app-frontend
-    platform: NODE_JS
     frontend:
       phases:
         preBuild:
