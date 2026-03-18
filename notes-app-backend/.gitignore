@@ -133,3 +133,6 @@ cython_debug/
 
 # macOS
 .DS_Store
+
+# AWS
+notes-key.pem
