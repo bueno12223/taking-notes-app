@@ -25,7 +25,8 @@ const ERROR_MESSAGES: Record<string, string> = {
  * @returns A friendly error message for the UI.
  */
 export function getFriendlyErrorMessage(error: unknown): string {
-  if (!error) return "An unexpected error occurred.";
+  const genericFallback = "An unexpected error occurred. Please try again later.";
+  if (!error) return genericFallback;
 
   const err = error as { name?: string; code?: string; message?: string };
   const key = err.name || err.code;
@@ -34,14 +35,12 @@ export function getFriendlyErrorMessage(error: unknown): string {
     return ERROR_MESSAGES[key];
   }
 
-  // Handle specific message-based matching if code isn't available
   if (err.message) {
     if (err.message.includes("Failed to fetch")) return ERROR_MESSAGES.FailedToFetch;
-    
-    // Return the technical message if it seems descriptive enough, 
-    // or mask it if it looks like a stack trace/system error.
+
     return err.message;
   }
 
-  return "An unexpected error occurred. Please try again later.";
+
+  return genericFallback;
 }

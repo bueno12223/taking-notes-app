@@ -56,8 +56,7 @@ async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Prom
   });
 
   if (!response.ok) {
-    const message = await response.text().catch(() => response.statusText);
-    throw new Error(message);
+    throw new Error(response.statusText ?? "An unexpected error occurred.");
   }
 
   return response.json() as Promise<T>;
