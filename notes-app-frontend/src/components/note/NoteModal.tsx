@@ -5,26 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import NoteToolbar from "./NoteToolbar";
 import NoteEditor from "./NoteEditor";
 import { Note } from "@/types/note";
-
-interface Category {
-  name: string;
-  color: string;
-}
-
-const MOCK_CATEGORIES: Category[] = [
-  { name: "Random Thoughts", color: "#EF9C66" },
-  { name: "School", color: "#FCDC94" },
-  { name: "Personal", color: "#78ABA8" },
-];
+import { Category } from "@/types/category";
 
 interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   note?: Note | null;
+  categories: Category[];
 }
 
-export default function NoteModal({ isOpen, onClose, note }: NoteModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState(MOCK_CATEGORIES[0]);
+export default function NoteModal({ isOpen, onClose, note, categories }: NoteModalProps) {
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   return (
     <AnimatePresence>
@@ -38,7 +29,7 @@ export default function NoteModal({ isOpen, onClose, note }: NoteModalProps) {
         >
           <NoteToolbar
             selected={selectedCategory}
-            options={MOCK_CATEGORIES}
+            categories={categories}
             onSelectCategory={setSelectedCategory}
             onClose={onClose}
           />

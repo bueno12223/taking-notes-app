@@ -3,21 +3,18 @@
 import { X } from "lucide-react";
 import CategoryDropdown from "@/components/home/CategoryDropdown";
 
-interface Category {
-  name: string;
-  color: string;
-}
+import { Category } from "@/types/category";
 
 interface NoteToolbarProps {
-  selected: Category;
-  options: Category[];
+  selected?: Category | null;
+  categories: Category[];
   onSelectCategory: (category: Category) => void;
   onClose: () => void;
 }
 
 export default function NoteToolbar({
   selected,
-  options,
+  categories,
   onSelectCategory,
   onClose,
 }: NoteToolbarProps) {
@@ -25,7 +22,7 @@ export default function NoteToolbar({
     <div className="relative flex items-start justify-between px-[37px] pt-[33px]">
       <CategoryDropdown
         selected={selected}
-        options={options}
+        options={categories}
         onSelect={onSelectCategory}
       />
       <button

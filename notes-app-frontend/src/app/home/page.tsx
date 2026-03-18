@@ -6,15 +6,12 @@ import NotesContent from "./components/NotesContent";
 import NoteModal from "@/components/note/NoteModal";
 import { useApi } from "@/hooks/useApi";
 import { Note } from "@/types/note";
-
-const MOCK_CATEGORIES = [
-  { name: "Random Thoughts", color: "#EF9C66" },
-  { name: "School", color: "#FCDC94" },
-  { name: "Personal", color: "#78ABA8" },
-];
+import { Category } from "@/types/category";
 
 export default function HomePage() {
-  const { data: notes, isLoading } = useApi<Note[]>("/api/notes/");
+  const { data: notes, isLoading: isNotesLoading } = useApi<Note[]>("/api/notes/");
+  const { data: categories = [] } = useApi<Category[]>("/api/categories/");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
@@ -28,11 +25,12 @@ export default function HomePage() {
     setSelectedNote(null);
   };
 
+
   return (
     <>
-      <AppLayout categories={MOCK_CATEGORIES} onNewNote={handleNewNote}>
+      <AppLayout categories={categories ?? []} onNewNote={handleNewNote}>
         <div className="flex-1 flex flex-col overflow-auto h-full">
-          <NotesContent notes={notes} isLoading={isLoading} />
+          <NotesContent notes={notes} isLoading={isNotesLoading} />
         </div>
       </AppLayout>
 
@@ -40,6 +38,7 @@ export default function HomePage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         note={selectedNote}
+        categories={categories ?? []}
       />
     </>
   );

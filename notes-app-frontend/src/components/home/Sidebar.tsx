@@ -1,10 +1,6 @@
+import { Category } from "@/types/category";
 import CategoryItem from "./CategoryItem";
 import SidebarUserFooter from "./SidebarUserFooter";
-
-interface Category {
-  name: string;
-  color: string;
-}
 
 interface SidebarProps {
   categories: Category[];
@@ -18,11 +14,10 @@ export default function Sidebar({ categories, onSelectCategory }: SidebarProps) 
         <div className="flex items-center px-4 py-2">
           <span className="font-sans font-bold text-[12px] text-black">All Categories</span>
         </div>
-        {categories.map((category) => (
+        {categories?.map((category) => (
           <CategoryItem
-            key={category.name}
-            name={category.name}
-            color={category.color}
+            key={category.value}
+            category={category}
             onClick={() => onSelectCategory?.(category)}
           />
         ))}

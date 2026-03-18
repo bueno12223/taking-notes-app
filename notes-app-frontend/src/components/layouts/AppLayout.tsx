@@ -1,11 +1,7 @@
 import Sidebar from "@/components/home/Sidebar";
 import Button from "@/components/ui/Button";
 import { Plus } from "lucide-react";
-
-interface Category {
-  name: string;
-  color: string;
-}
+import { Category } from "@/types/category";
 
 interface AppLayoutProps {
   categories: Category[];

@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { Category } from "@/types/category";
 import CategoryItem from "./CategoryItem";
 
-interface Category {
-  name: string;
-  color: string;
-}
-
 interface CategoryDropdownProps {
-  selected: Category;
+  selected?: Category | null;
   options: Category[];
   onSelect: (category: Category) => void;
 }
@@ -30,11 +26,10 @@ export default function CategoryDropdown({ selected, options, onSelect }: Catego
         className="flex flex-row items-center w-full px-[15px] py-[7px] gap-2 border border-brand-gold rounded-[6px]"
       >
         <span
-          className="shrink-0 rounded-full"
-          style={{ width: 11, height: 11, backgroundColor: selected.color }}
+          className={`shrink-0 rounded-full w-[11px] h-[11px] ${selected ? `bg-${selected.value}` : 'bg-transparent'}`}
         />
         <span className="font-sans font-normal text-[12px] text-black flex-1 text-left">
-          {selected.name}
+          {selected?.label || "Select Category"}
         </span>
         {isOpen ? (
           <ChevronUp size={16} className="text-brand-gold shrink-0" />
@@ -44,12 +39,11 @@ export default function CategoryDropdown({ selected, options, onSelect }: Catego
       </button>
 
       {isOpen && (
-        <div className="flex flex-col bg-brand-linen rounded-[8px] overflow-hidden w-full">
-          {options.map((category) => (
+        <div className="flex flex-col bg-brand-linen rounded-[8px] overflow-hidden w-full absolute top-[100%] left-0 z-50">
+          {options?.map((category) => (
             <CategoryItem
-              key={category.name}
-              name={category.name}
-              color={category.color}
+              key={category.value}
+              category={category}
               onClick={() => handleSelect(category)}
             />
           ))}
