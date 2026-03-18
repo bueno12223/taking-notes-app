@@ -9,6 +9,9 @@ const config: Config = {
           cream: "#FCDC94",
           sage: "#C8CFA0",
           teal: "#78ABA8",
+          linen: "#FAF1E3",
+          gold: "#957139",
+          walnut: "#88642A",
         },
       },
       fontFamily: {
