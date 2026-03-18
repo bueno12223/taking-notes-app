@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inria_Serif, Inter } from "next/font/google";
-import AppProviders from "@/components/providers/AppProviders";
+import AppProviders from "@/providers/AppProviders";
 import "./globals.css";
 
 const inriaSerif = Inria_Serif({

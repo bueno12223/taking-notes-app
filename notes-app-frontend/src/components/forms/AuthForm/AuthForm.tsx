@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import AuthInput from "@/components/auth/AuthInput";
-import AuthButton from "@/components/auth/AuthButton";
+import Button from "@/components/ui/Button";
 import { useCustomForm } from "@/hooks/use-custom-form";
 import { Schema } from "yup";
 import { AuthFormValues } from "./validations";
@@ -51,7 +51,7 @@ export default function AuthForm({
         error={form.touched.password ? (form.errors.password as string) : undefined}
       />
       <div className="flex flex-col items-center gap-[12px] mt-6">
-        <AuthButton label={buttonLabel} type="submit" />
+        <Button label={buttonLabel} type="submit" fullWidth />
         <Link
           href={footerHref}
           className="text-[12px] font-normal font-sans underline text-brand-gold"

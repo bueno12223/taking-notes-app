@@ -1,5 +1,6 @@
 import Sidebar from "@/components/home/Sidebar";
-import NewNoteButton from "@/components/home/NewNoteButton";
+import Button from "@/components/ui/Button";
+import { Plus } from "lucide-react";
 
 interface Category {
   name: string;
@@ -20,7 +21,14 @@ export default function AppLayout({ categories, children, onNewNote, onSelectCat
       <main className="flex flex-1 flex-col">
         {children}
       </main>
-      <NewNoteButton onClick={onNewNote} />
+      <div className="fixed top-[39px] right-[23px] z-10">
+        <Button
+          label="New Note"
+          onClick={onNewNote}
+          icon={<Plus size={16} />}
+          iconPosition="left"
+        />
+      </div>
     </div>
   );
 }
