@@ -2,7 +2,6 @@
 
 import { X } from "lucide-react";
 import CategoryDropdown from "@/components/home/CategoryDropdown";
-
 import { Category } from "@/types/category";
 
 interface NoteToolbarProps {
@@ -31,7 +30,7 @@ export default function NoteToolbar({
         aria-label="Close note"
         className="text-brand-gold hover:opacity-70 transition-opacity"
       >
-        <X size={24} cursor={'pointer'} />
+        <X size={24} cursor={"pointer"} />
       </button>
     </div>
   );

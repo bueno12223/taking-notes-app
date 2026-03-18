@@ -1,52 +1,74 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import NoteToolbar from "./NoteToolbar";
 import NoteEditor from "./NoteEditor";
 import { Note } from "@/types/note";
 import { Category } from "@/types/category";
-import { useCustomForm } from "@/hooks/use-custom-form";
-import { getNoteInitialValues, noteSchema, NoteFormValues } from "./validations";
+import { useAutosave } from "@/hooks/useAutosave";
+import { AUTOSAVE_DELAY } from "./constants";
 
 interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   note?: Note | null;
   categories: Category[];
+  onNoteSaved?: (note: Note) => void;
 }
 
-export default function NoteModal({ isOpen, onClose, note, categories }: NoteModalProps) {
-  const form = useCustomForm<NoteFormValues>({
-    initialValues: getNoteInitialValues(),
-    validationSchema: noteSchema,
-    onSubmit: (values) => {
-      console.log("Note submitted:", values);
+export default function NoteModal({ 
+  isOpen, 
+  onClose, 
+  note, 
+  categories,
+  onNoteSaved
+}: NoteModalProps) {
+  const [noteId, setNoteId] = useState<number | null>(note?.id ?? null);
+  const [title, setTitle] = useState(note?.title ?? "");
+  const [content, setContent] = useState<Record<string, unknown>>(note?.content ?? {});
+  const [category, setCategory] = useState(note?.category ?? categories[0]?.value ?? "");
+  const [pendingClose, setPendingClose] = useState(false);
+
+  const initialLastSavedAt = note?.updated_at ?? null;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setNoteId(note?.id ?? null);
+    setTitle(note?.title ?? "");
+    setContent(note?.content ?? {});
+    setCategory(note?.category ?? categories[0]?.value ?? "");
+    setPendingClose(false);
+  }, [isOpen, note, categories]);
+
+  const { saveStatus, errors, lastSavedAt } = useAutosave({
+    noteId,
+    data: { title, content, category },
+    onSaveSuccess: (updatedNote) => {
+      setNoteId(updatedNote.id);
+      onNoteSaved?.(updatedNote);
     },
+    initialLastSavedAt,
+    delay: AUTOSAVE_DELAY,
   });
 
   useEffect(() => {
-    if (isOpen) {
-      const defaultCategory = note?.category ?? categories[0]?.value ?? "";
-      form.resetForm({
-        values: {
-          title: note?.title ?? "",
-          content: note?.content ?? {},
-          category: defaultCategory,
-        },
-      });
+    if (pendingClose && saveStatus !== "saving") {
+      setPendingClose(false);
+      onClose();
     }
-  }, [isOpen, note, categories]);
+  }, [pendingClose, saveStatus, onClose]);
 
-  const selectedCategory = categories.find((c) => c.value === form.values.category) ?? null;
+  const selectedCategory = categories.find((c) => c.value === category) ?? null;
 
-  const handleCategorySelect = (category: Category) => {
-    form.setFieldValue("category", category.value);
-  };
+  const handleCategorySelect = (cat: Category) => setCategory(cat.value);
 
   const handleClose = () => {
-    form.resetForm();
-    onClose();
+    if (saveStatus === "saving") {
+      setPendingClose(true);
+    } else {
+      onClose();
+    }
   };
 
   return (
@@ -66,10 +88,14 @@ export default function NoteModal({ isOpen, onClose, note, categories }: NoteMod
             onClose={handleClose}
           />
           <NoteEditor
-            title={form.values.title}
-            content={form.values.content}
-            onTitleChange={(val) => form.setFieldValue("title", val)}
-            onContentChange={(val) => form.setFieldValue("content", val)}
+            noteId={noteId}
+            lastSavedAt={lastSavedAt}
+            title={title}
+            content={content}
+            category={category}
+            onTitleChange={setTitle}
+            onContentChange={setContent}
+            errors={errors}
           />
         </motion.div>
       )}

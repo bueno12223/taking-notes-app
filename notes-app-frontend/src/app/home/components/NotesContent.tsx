@@ -8,9 +8,10 @@ import NotesGrid from "@/components/home/NotesGrid";
 interface NotesContentProps {
   notes: Note[] | null;
   isLoading: boolean;
+  onNoteClick: (note: Note) => void;
 }
 
-export default function NotesContent({ notes, isLoading }: NotesContentProps) {
+export default function NotesContent({ notes, isLoading, onNoteClick }: NotesContentProps) {
   if (isLoading) {
     return <NotesSkeleton />;
   }
@@ -19,5 +20,5 @@ export default function NotesContent({ notes, isLoading }: NotesContentProps) {
     return <EmptyState />;
   }
 
-  return <NotesGrid notes={notes} />;
+  return <NotesGrid notes={notes} onNoteClick={onNoteClick} />;
 }
