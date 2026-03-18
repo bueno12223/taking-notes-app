@@ -31,7 +31,7 @@ export default function NoteToolbar({
         aria-label="Close note"
         className="text-brand-gold hover:opacity-70 transition-opacity"
       >
-        <X size={24} />
+        <X size={24} cursor={'pointer'} />
       </button>
     </div>
   );
