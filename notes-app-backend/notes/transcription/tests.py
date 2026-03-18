@@ -29,7 +29,6 @@ class TranscriptionTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["transcript"], "This is a test transcript")
-        # Verify it was called through the async wrapper
         mock_async_to_sync.assert_called_once_with(mock_transcribe)
 
     def test_unauthenticated_request_returns_403(self):
@@ -57,7 +56,6 @@ class TranscriptionTests(APITestCase):
     def test_transcription_failure_returns_500(self, mock_async_to_sync, mock_transcribe, mock_auth):
         mock_auth.return_value = (CognitoUser(self.user_id), None)
         
-        # Mock async_to_sync to return a callable that raises an exception
         def side_effect(x):
             raise Exception("AWS Error")
         mock_async_to_sync.return_value = side_effect
