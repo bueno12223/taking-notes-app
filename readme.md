@@ -122,6 +122,34 @@ The lower coverage on `useVoiceRecorder` is expected — `MediaRecorder` and `Au
 
 ---
 
+## Process & AI Usage
+
+### Process Summary
+Started by defining the data model and authentication strategy before writing any code. Built backend and frontend in parallel, validating each layer (auth → categories → notes → transcription) before moving to the next. Deployment was configured incrementally — local Docker first, then EC2 + RDS, then Amplify.
+
+### Key Design Decisions
+- **No user table** — Cognito owns identity. Storing only `cognito_user_id` on the Note model eliminates an entire class of auth-related bugs and PII risk.
+- **`CATEGORY_CHOICES` over a DB table** — Categories are fixed by design. A separate table would add a JOIN, a migration, and an endpoint for data that never changes.
+- **Tiptap over raw markdown** — Storing content as Tiptap JSON avoids XSS without a sanitization library, preserves formatting without string parsing, and gives the editor a WYSIWYG experience without building a custom renderer.
+- **`useAutosave` with POST→PATCH handoff** — The note gets a real ID on first save. All subsequent saves use PATCH against that ID. The user never thinks about saving.
+- **Debounce over interval** — Saving every Xms regardless of activity wastes requests. Debounce fires only after the user stops typing, which is when saving is actually meaningful.
+- **AudioWorklet over MediaRecorder** — AudioWorklet provides better performance and more control over audio processing, which is essential for real-time transcription.
+
+### AI Tools
+**Claude (claude.ai)** was used as an architectural advisor throughout the project:
+- Evaluating tradeoffs before implementation (e.g. Tiptap vs react-markdown, CATEGORY_CHOICES vs DB table, Formik vs reactive validation)
+- Generating prompts for GitHub Copilot — rather than prompting Copilot directly with vague instructions, Claude was used to produce precise, scoped prompts with explicit constraints and stopping conditions
+- Reviewing architectural decisions for correctness before committing to them
+
+**Antigravity AI assistant** was used for implementation:
+- Generating boilerplate from the prompts produced by Claude
+- Writing unit tests given the existing implementation
+- Filling in repetitive patterns (serializers, URL routing, Tailwind classes)
+
+The workflow was: Claude owns the architecture and the prompt, Antigravity AI assistant owns the implementation. No code was committed without being read and understood.
+
+---
+
 ## Known Improvements
 
 - Add logged-in user display and logout button in the sidebar
@@ -129,7 +157,6 @@ The lower coverage on `useVoiceRecorder` is expected — `MediaRecorder` and `Au
 - Animations on open and close notes
 - Silence detection (3s) was not implemented — user must press stop manually to trigger transcription
 - UI fixes: category dropdown missing shadow (blends with background), loading states on buttons and auth forms, selected category highlight in dropdown
-- Add DB index on `cognito_user_id` for better query performance at scale
 - `ERROR_MESSAGES` mapping is partially implemented — needs to cover all edge cases consistently
 
 ---
