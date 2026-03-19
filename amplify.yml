@@ -10,9 +10,10 @@ applications:
         build:
           commands:
             - touch .env
+            - echo "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" >> .env
             - echo "NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID" >> .env
-            - echo "NEXT_PUBLIC_COGNITO_CLIENT_ID=$NEXT_PUBLIC_COGNITO_CLIENT_ID" >> .env
-            - echo "NEXT_PUBLIC_COGNITO_REGION=$AWS_REGION" >> .env
+            - echo "NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=$NEXT_PUBLIC_COGNITO_APP_CLIENT_ID" >> .env
+            - echo "NEXT_PUBLIC_AWS_REGION=$AWS_REGION" >> .env
             - pnpm run build
       artifacts:
         baseDirectory: .next
