@@ -5,20 +5,44 @@ import { toast } from "sonner";
 import { useApi } from "./useApi";
 import { MAX_RECORDING_TIME } from "@/constants";
 
+/**
+ * Configuration properties for the voice recorder hook.
+ */
 interface UseVoiceRecorderProps {
+  /**
+   * Callback function triggered when a transcript is successfully received.
+   * @param text - The transcribed text from the voice recording.
+   */
   onTranscript: (text: string) => void;
 }
 
+/**
+ * The state and methods provided by the voice recorder hook.
+ */
 export interface UseVoiceRecorderReturn {
+  /** Indicates if the microphone is currently active and recording. */
   isRecording: boolean;
+  /** Indicates if the recording is currently muted (audio data is being discarded). */
   isMuted: boolean;
+  /** The current audio input level (0-100), useful for volume visualizations. */
   audioLevel: number;
+  /** Indicates if a transcription request is currently in progress. */
   isTranscribing: boolean;
+  /** Starts the voice recording session after requesting microphone permissions. */
   startRecording: () => Promise<void>;
+  /** Safely stops the current recording and triggers the transcription process. */
   stopRecording: () => void;
+  /** Toggles the muted state of the current recording. */
   toggleMute: () => void;
 }
 
+/**
+ * A hook that manages voice recording using AudioWorklet and handles PCM audio processing.
+ * It automatically normalizes audio for the transcription API and provides real-time levels.
+ * 
+ * @param props - The hook configuration properties.
+ * @returns An object containing recording state and control functions.
+ */
 export function useVoiceRecorder({ onTranscript }: UseVoiceRecorderProps): UseVoiceRecorderReturn {
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -87,7 +111,7 @@ export function useVoiceRecorder({ onTranscript }: UseVoiceRecorderProps): UseVo
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const audioContext = new AudioContextClass({ sampleRate: 16000 });
       audioContextRef.current = audioContext;
 

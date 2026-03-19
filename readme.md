@@ -1,7 +1,7 @@
 # Notes App
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" />
+  <img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" />
   <img src="https://img.shields.io/badge/Django-REST_Framework-092E20?style=for-the-badge&logo=django" />
   <img src="https://img.shields.io/badge/AWS-Cognito_·_Transcribe_·_Amplify-orange?style=for-the-badge&logo=amazon-aws" />
   <img src="https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript" />
@@ -86,7 +86,7 @@ Audio is received as binary at `POST /api/transcribe/`. The backend sends it to 
 | GET | `/api/notes/` | ✅ | List notes for the authenticated user |
 | POST | `/api/notes/` | ✅ | Create a new note |
 | PATCH | `/api/notes/:id/` | ✅ | Update a note |
-| GET | `/api/categories/` | ❌ | List available categories |
+| GET | `/api/categories/` | ✅ | List available categories |
 | POST | `/api/transcribe/` | ✅ | Transcribe audio to text |
 
 ---
